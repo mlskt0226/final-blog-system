@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <style>
+        :root {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666;
+            --card-bg: #ffffff;
+            --border: #e0e0e0;
+            --accent: #0070f3;
+            --danger: #d32f2f;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #ccc;
+            --card-bg: #2a2a2a;
+            --border: #404040;
+            --shadow: 0 1px 3px rgba(0,0,0,0.3);
+            --accent: #4dabf7;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 
+            max-width: 800px; margin: 40px auto; padding: 0 16px 40px; 
+            background: var(--bg-primary); color: var(--text-primary); 
+            transition: all 0.3s ease;
+        }
+        /* КНОПКА ТЕМЫ */
+        .theme-toggle {
+            position: fixed; top: 20px; right: 20px; 
+            background: var(--accent); color: white; border: none; 
+            padding: 12px; border-radius: 50%; cursor: pointer; 
+            width: 52px; height: 52px; box-shadow: var(--shadow);
+            transition: all 0.3s; z-index: 1000; font-size: 20px;
+        }
+        .theme-toggle:hover { 
+            transform: scale(1.1); box-shadow: 0 6px 20px rgba(0,112,243,0.4); 
+        }
+        header { 
+            text-align: center; margin-bottom: 24px; 
+            background: var(--bg-secondary); padding: 20px; 
+            border-radius: 12px; box-shadow: var(--shadow); border: 1px solid var(--border);
+        }
+        nav a { 
+            color: var(--accent); text-decoration: none; margin: 0 6px; 
+            padding: 4px 8px; border-radius: 4px; transition: background 0.2s;
+        }
+        nav a:hover { background: var(--bg-primary); text-decoration: none; }
+        h1 { margin: 8px 0 16px; color: var(--text-primary); }
+        .post { 
+            background: var(--card-bg); padding: 16px 20px; margin-bottom: 16px; 
+            border-radius: 8px; box-shadow: var(--shadow); border: 1px solid var(--border);
+        }
+        .post-title { font-size: 20px; margin: 0 0 8px; color: var(--text-primary); }
+        .post-content { margin: 0; white-space: pre-wrap; color: var(--text-secondary); }
+        .empty { text-align: center; color: var(--text-secondary); margin-top: 40px; }
+        .form-block { 
+            background: var(--card-bg); padding: 16px 20px; margin-bottom: 16px; 
+            border-radius: 8px; box-shadow: var(--shadow); border: 1px solid var(--border);
+        }
+        .form-block input[type="text"], .form-block textarea { 
+            width: 100%; padding: 12px; margin: 4px 0 8px; box-sizing: border-box; 
+            border: 1px solid var(--border); border-radius: 6px; 
+            background: var(--bg-primary); color: var(--text-primary); font-size: 16px;
+        }
+        .form-block button { 
+            padding: 12px 20px; cursor: pointer; background: var(--accent); 
+            color: white; border: none; border-radius: 6px; font-size: 16px;
+        }
+        .form-block button:hover { opacity: 0.9; }
+        .comment-form input[type="text"] { box-sizing: border-box; }
+        .comment-list { margin: 0 0 8px; padding-left: 18px; }
+        .favorite-btn { 
+            padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; 
+            margin: 2px; font-size: 14px;
+        }
+        .favorite-btn.add { background: var(--accent); color: white; }
+        .favorite-btn.remove { background: var(--danger); color: white; }
+        .comments { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+        .comment { 
+            background: var(--bg-secondary); padding: 12px; border-radius: 6px; 
+            margin: 8px 0; border-left: 3px solid var(--accent);
+        }
+        @media (max-width: 768px) { 
+            body { margin: 20px auto; padding: 0 12px 20px; }
+            .post, .form-block { padding: 12px; }
+            .theme-toggle { top: 12px; right: 12px; width: 48px; height: 48px; font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 🌙 КНОПКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ -->
+    <button class="theme-toggle" id="themeToggle" title="Переключить тему">🌙</button>
+    
+    <header>
+        <nav>
+            <a href="/">🏠 Главная</a> |
+            <a href="/favorites">❤️ Избранное</a> |
+            <a href="/profile">👤 Профиль</a> |
+            <a href="/login">🔐 Вход</a> |
+            <a href="/logout">🚪 Выход</a> |
+            <a href="/register">📝 Регистрация</a>
+        </nav>
+        <h1>Блог</h1>
+    </header>
+
+    <!-- Поиск -->
+    <div class="form-block" style="text-align:center;">
+        <form method="get" action="/">
+            <input type="text" name="q" placeholder="🔍 Поиск по постам" value="{{ q or '' }}">
+            <button type="submit">Найти</button>
+        </form>
+    </div>
+
+    <!-- Создание поста -->
+    <div class="form-block">
+        <h2>✨ Создать пост</h2>
+        <form method="post" action="/posts/">
+            <input type="text" name="title" placeholder="Заголовок (3-200 символов)" required>
+            <textarea name="content" placeholder="Текст поста (минимум 10 символов)" required rows="4"></textarea>
+            <button type="submit">📝 Опубликовать</button>
+        </form>
+    </div>
+
+    <!-- Лента постов -->
+    {% if posts %}
+        {% for post in posts %}
+        <div class="post">
+            <h2 class="post-title">{{ post.title }}</h2>
+            <p class="post-content">{{ post.content }}</p>
+            <p style="color: var(--text-secondary); font-size:14px;">
+                👤 Автор: ID {{ post.user_id }}
+                • ⭐ Оценка: {{ post.rating or 0 }}
+            </p>
+
+            <!-- Кнопка оценки -->
+            <form method="post" action="/posts/{{ post.id }}/rate" style="display:inline-block; margin-bottom:8px;">
+                <button type="submit" class="favorite-btn add">⭐ Оценить</button>
+            </form>
+
+            <!-- Комментарии -->
+            <div class="comments">
+                <h3>💬 Комментарии</h3>
+                {% set comments = comments_by_post.get(post.id, []) %}
+                {% if comments %}
+                    <div class="comment-list">
+                        {% for comment in comments %}
+                            <div class="comment">
+                                <strong>{{ comment.author }}:</strong> {{ comment.text }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p style="color: var(--text-secondary);">Пока нет комментариев. Будьте первым! 😊</p>
+                {% endif %}
+
+                <!-- Форма комментария -->
+                <form class="comment-form" method="post" action="/posts/{{ post.id }}/comments/">
+                    <input type="text" name="author" placeholder="Ваше имя" required style="width:30%;">
+                    <input type="text" name="text" placeholder="Комментарий" required style="width:55%;">
+                    <button type="submit">💬 Отправить</button>
+                </form>
+            </div>
+
+            <!-- Избранное -->
+            {% set current_user_id = 1 if not request.cookies.user_id else request.cookies.user_id|int %}
+            {% set user_favs = favorites_db.get(current_user_id, []) %}
+            {% set is_favorite = post.id in user_favs %}
+            {% if is_favorite %}
+                <form method="post" action="/posts/{{ post.id }}/unfavorite">
+                    <button type="submit" class="favorite-btn remove">⭐ Убрать из избранного</button>
+                </form>
+            {% else %}
+                <form method="post" action="/posts/{{ post.id }}/favorite">
+                    <button type="submit" class="favorite-btn add">+ Добавить в избранное</button>
+                </form>
+            {% endif %}
+
+            <!-- Редактирование/удаление -->
+            <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
+                <form method="post" action="/posts/{{ post.id }}/edit" style="display:inline;">
+                    <input type="text" name="title" value="{{ post.title }}" style="width:25%; padding:6px; margin-right:4px;" required>
+                    <textarea name="content" style="width:40%; padding:6px; height:50px; margin-right:4px;" required>{{ post.content }}</textarea>
+                    <button type="submit" style="padding:6px 12px; background:var(--accent);">✏️ Сохранить</button>
+                </form>
+                <form method="post" action="/posts/{{ post.id }}/delete" style="display:inline;" onsubmit="return confirm('Удалить пост навсегда?')">
+                    <button type="submit" style="padding:6px 12px; background:var(--danger); color:white;">🗑️ Удалить</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Пагинация -->
+        {% if total_pages > 1 %}
+        <div style="text-align:center; margin-top:20px;">
+            {% for p in range(1, total_pages + 1) %}
+                <a href="/?page={{ p }}{% if q %}&q={{ q }}{% endif %}" 
+                   style="margin:0 5px; padding:8px 12px; background:var(--bg-secondary); color:var(--accent); text-decoration:none; border-radius:6px;">{{ p }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="post" style="text-align:center;">
+            <p class="empty">Пока нет ни одного поста. Создайте первый через форму выше! ✨</p>
+        </div>
+    {% endif %}
+
+    <!-- 🎨 JAVASCRIPT ДЛЯ КНОПКИ ТЕМЫ -->
+    <script>
+        const toggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+        
+        // Загружаем сохраненную тему
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            html.setAttribute('data-theme', 'dark');
+            toggle.textContent = '☀️';
+        }
+        
+        // Обработчик клика
+        toggle.addEventListener('click', () => {
+            const current = html.getAttribute('data-theme');
+            if (current === 'dark' || !current) {
+                html.setAttribute('data-theme', 'light');
+                toggle.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                toggle.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 16px 40px;
+            background: #f5f5f5;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        nav a {
+            color: #0070f3;
+            text-decoration: none;
+            margin: 0 6px;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        h1 {
+            margin: 8px 0 16px;
+        }
+        .post {
+            background: #fff;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .post-title {
+            font-size: 20px;
+            margin: 0 0 8px;
+        }
+        .post-content {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+        .favorite-badge {
+            background: #ffeb3b;
+            color: #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            vertical-align: middle;
+        }
+        .empty {
+            text-align: center;
+            color: #777;
+            margin-top: 40px;
+        }
+        .comment-list {
+            margin: 0 0 8px;
+            padding-left: 18px;
+        }
+        .comment-form input[type="text"] {
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/">Главная</a> |
+            <a href="/favorites">Избранное</a> |
+            <a href="/profile">Профиль</a> |
+            <a href="/register">Регистрация</a> |
+            <a href="/login">Вход</a>
+            <a href="/logout">Выход</a> |
+            <a href="/register">Регистрация</a>
+        </nav>
+        <h1>{{ title }}</h1>
+    </header>
+
+    {% if posts %}
+        {% for post in posts %}
+        <div class="post">
+            <h2 class="post-title">
+                {{ post.title }}
+                <span class="favorite-badge">⭐ Избранное</span>
+            </h2>
+            <p class="post-content">{{ post.content }}</p>
+
+            <!-- Комментарии к посту -->
+            <h3>Комментарии</h3>
+            {% set comments = comments_by_post.get(post.id, []) %}
+            {% if comments %}
+                <ul class="comment-list">
+                    {% for comment in comments %}
+                        <li><strong>{{ comment.author }}:</strong> {{ comment.text }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p style="color:#777;">Пока нет комментариев.</p>
+            {% endif %}
+
+            <!-- Форма добавления комментария -->
+            <form class="comment-form" method="post" action="/posts/{{ post.id }}/comments" style="margin-top:8px;">
+                <input type="text" name="author" placeholder="Ваше имя" required
+                       style="width:30%;padding:4px;">
+                <input type="text" name="text" placeholder="Комментарий" required
+                       style="width:55%;padding:4px;">
+                <button type="submit" style="padding:4px 8px;">Отправить</button>
+            </form>
+
+            <!-- Удалить из избранного -->
+            <form method="post" action="/posts/{{ post.id }}/unfavorite" style="margin-top:8px;">
+                <button type="submit" style="padding:4px 8px; background:#ff4444; color:white;">Убрать из избранного</button>
+            </form>
+
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty">
+            <p>Пока нет избранных постов.</p>
+            <p><a href="/">Вернуться на главную</a> и добавьте что-нибудь в избранное 🙂</p>
+        </div>
+    {% endif %}
+</body>
+</html>
+cat > templates/favorites.html << 'EOF'
+{% extends "base.html" %}
+{% block content %}
+<div class="form-block">
+    <h2>❤️ Избранные посты</h2>
+    {% if posts %}
+        {% for post in posts %}
+        <div style="background: var(--card-bg); padding: 16px; margin: 12px 0; border-radius: 8px; border: 1px solid var(--border);">
+            <h3>{{ post.title }}</h3>
+            <p>{{ post.content }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+    <p>У вас пока нет избранных постов. Добавьте их на главной странице! ✨</p>
+    {% endif %}
+</div>
+{% endblock %}
+EOF
