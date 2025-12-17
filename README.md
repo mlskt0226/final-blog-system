@@ -130,4 +130,4 @@ docker run -p 8000:8000 blog-system
 
 
 **Ссылки:**  
-[Swagger Docs](http://127.0.0.1:8000/docs) | [Тесты](coverage/index.html) | [БД](blog.db) | [Видео](youtube.com/watch?v=VIDEO_ID)
+[Swagger Docs](http://127.0.0.1:8000/docs) | [Тесты](coverage/index.html) | [БД](blog.db) | [Видео](https://disk.yandex.ru/d/WPtX3gGStSXm7Q)
