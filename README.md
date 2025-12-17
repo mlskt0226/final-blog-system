@@ -1,7 +1,7 @@
 # final-blog-system
 # Blog System 
 
-[![Видеообзор]((https://disk.yandex.ru/d/WPtX3gGStSXm7Q)**
+###  **Видеообзор**   https://disk.yandex.ru/d/WPtX3gGStSXm7Q
 
 ##  Функционал
 
